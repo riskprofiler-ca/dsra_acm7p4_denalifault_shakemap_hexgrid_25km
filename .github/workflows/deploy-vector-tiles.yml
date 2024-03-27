@@ -47,15 +47,6 @@ jobs:
           #sudo eatmydata rm -rf /usr/local/graalvm      # 1.0 GB
           df -h
 
-#      - name: Maximize build space and inodes
-#        uses: OpenDRR/maximize-build-space@many-inodes
-#        with:
-#          root-reserve-mb: 512
-#          swap-size-mb: 100
-#          remove-dotnet: true
-#          remove-android: true
-#          remove-haskell: true
-
       - run: |
           echo "Free space after:"
           set -x
@@ -74,10 +65,18 @@ jobs:
           ls -l
           tileset="$(basename *.7z.001 .7z.001)"
           time eatmydata 7z x "$tileset.7z.001"
-
-      - name: Append a landing index.html to artifact
-        run: |
           ls -l artifact.tar
+
+      - name: Add EPSG_3857 symlink to artifact
+        run: |
+          if [[ -d EPSG_900913 && ! -e EPSG_3857 ]]; then
+            ln -s EPSG_900913 EPSG_3857
+            tar -rf artifact.tar ./EPSG_3857
+          fi
+          ls -l artifact.tar
+
+      - name: Add landing index.html to artifact
+        run: |
           tar -rf artifact.tar ./index.html
           ls -l artifact.tar
 
