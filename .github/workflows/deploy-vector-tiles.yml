@@ -69,7 +69,8 @@ jobs:
 
       - name: Add EPSG_3857 symlink to artifact
         run: |
-          if [[ -d EPSG_900913 && ! -e EPSG_3857 ]]; then
+          set +o pipefail
+          if ( tar -tf artifact.tar | grep -Eq '^(\./)?EPSG_900913/$' ) && ! ( tar -tf artifact.tar | grep -Eq '^(\./)?EPSG_3857/?$' ); then
             ln -s EPSG_900913 EPSG_3857
             tar -rf artifact.tar ./EPSG_3857
           fi
